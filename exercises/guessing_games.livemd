@@ -51,7 +51,10 @@ Ensure your solutions works for both an incorrect and correct player guess.
 Enter your solution below.
 
 ```elixir
+guess = "wow"
+answer = "cow"
 
+if guess == answer, do: "Correct", else: "Incorrect"
 ```
 
 ## Bonus: Guess The Random Word
@@ -83,7 +86,7 @@ Armed with this knowledge, you're going to create a word guessing game.
 Enter your solution below.
 
 ```elixir
-
+touch
 ```
 
 ## Bonus: Guess The Number
