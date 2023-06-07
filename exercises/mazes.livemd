@@ -197,6 +197,8 @@ treasure_map = %{
     }
   }
 }
+
+treasure_map["south ten paces"][10]."east three paces"[[1, 2, 3]][{"turn", "right"}].dig
 ```
 
 ### (Extra Bonus) Update The Treasure Map
@@ -267,6 +269,12 @@ treasure_map = %{
     }
   }
 }
+
+treasure_map =
+  put_in(
+    treasure_map["south ten paces"][10]."east three paces"[[1, 2, 3]][{"turn", "right"}].dig,
+    "taken"
+  )
 ```
 
 ## Bonus: Pattern Matching
@@ -293,6 +301,13 @@ maze = %{
     }
   }
 }
+
+s = "south"
+e = "east"
+w = "west"
+
+%{^s => %{^e => %{^s => %{^w => %{^s => %{^w => %{^s => %{^e => %{^s => exit}}}}}}}}} = maze
+exit
 ```
 
 ## BONUS: Create Your Own Maze
@@ -305,8 +320,24 @@ at least a 5 * 5 in width and height.
 
 Enter your solution below.
 
-```elixir
+<!-- livebook:{"break_markdown":true} -->
 
+![](images/maze.svg)
+
+```elixir
+defmodule Maze do
+  def new(directions), do: rec_new(directions)
+
+  defp rec_new([]) do
+    "Exit!"
+  end
+
+  defp rec_new([dir | rest]) do
+    %{dir => rec_new(rest)}
+  end
+end
+
+Maze.new(~w(left right right left left left right))
 ```
 
 ## Commit Your Progress
