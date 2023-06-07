@@ -194,10 +194,12 @@ Enter your solution below.
 ```elixir
 Enum.map(0..2, fn _x -> Enum.random(1..13) end)
 |> IO.inspect()
-|> Enum.reduce(0, fn
-  card, acc when card <= 6 -> acc - 1
-  card, acc when card <= 9 -> acc
-  _card, acc -> acc + 1
+|> Enum.reduce(0, fn card, acc ->
+  cond do
+    card in 1..6 -> acc - 1
+    card in 7..9 -> acc
+    card in 10..13 -> acc + 1
+  end
 end)
 ```
 
