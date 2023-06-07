@@ -172,7 +172,32 @@ family_tree = arthur
 Enter your solution below.
 
 ```elixir
+defmodule FamilyMember do
+  defstruct [:name, :status, :age, :parents]
 
+  def new(name, status, age, parents \\ []),
+    do: %__MODULE__{name: name, status: status, age: age, parents: parents}
+end
+
+# one way
+han = FamilyMember.new("Han", :grand_parent, 81)
+leia = FamilyMember.new("Leia", :grand_parent, 82)
+bob = FamilyMember.new("Bob", :grand_parent, 68)
+bridget = FamilyMember.new("Bridget", :grand_parent, 70)
+uther = FamilyMember.new("Uther", :parent, 56, [han, leia])
+ygraine = FamilyMember.new("Ygraine", :parent, 45, [bob, bridget])
+arthur = FamilyMember.new("Arthur", :child, 22, [uther, ygraine])
+
+# another way
+family =
+  %{}
+  |> Map.put_new(:arthur, FamilyMember.new("Arthur", :child, 22, [:uther, :ygraine]))
+  |> Map.put_new(:uther, FamilyMember.new("Uther", :parent, 56, [:han, :leia]))
+  |> Map.put_new(:ygraine, FamilyMember.new("Ygraine", :parent, 45, [:bob, :bridget]))
+  |> Map.put_new(:han, FamilyMember.new("Han", :grand_parent, 81))
+  |> Map.put_new(:leia, FamilyMember.new("Leia", :grand_parent, 82))
+  |> Map.put_new(:bob, FamilyMember.new("Bob", :grand_parent, 68))
+  |> Map.put_new(:bridget, FamilyMember.new("Bridget", :grand_parent, 70))
 ```
 
 ## Commit Your Progress
