@@ -184,7 +184,7 @@ Notice that if you try to call the function without an argument, it fails becaus
 it expects an argument. Not all languages do that, but Elixir is pretty smart 😎
 
 ```elixir
-double.()
+double.(2)
 ```
 
 Great, now all that's left is to multiply the parameter by `2`. You should be familiar with
@@ -298,7 +298,9 @@ is_even? = fn int -> rem(int, 2) == 0 end
 Enter your solution below.
 
 ```elixir
+is_even? = fn x -> rem(x, 2) == 0 end
 
+1..10 |> Enum.map(&{&1, is_even?.(&1)})
 ```
 
 ## Multi-Parameter Functions
@@ -364,7 +366,8 @@ calculate_force = fn mass, acceleration -> mass * acceleration end
 Enter your solution below.
 
 ```elixir
-
+calculate_force = fn mass, acceleration -> mass * acceleration end
+calculate_force.(10, 10)
 ```
 
 ## Shorthand Syntax
@@ -413,7 +416,9 @@ subtract = &(&1 - &2)
 Enter your solution below.
 
 ```elixir
+subtract = &(&1 - &2)
 
+subtract.(4, 2)
 ```
 
 ### Your Turn
@@ -439,7 +444,8 @@ multiply_three = &(&1 * &2 * &3)
 Enter your solution below.
 
 ```elixir
-
+multiply_three = &(&1 * &2 * &3)
+multiply_three.(1, 2, 3)
 ```
 
 ## First-class Functions
@@ -527,7 +533,9 @@ call_with_10_and_20 = fn callback -> callback.(10, 20) end
 Enter your solution below.
 
 ```elixir
-call_with_10_and_20 = nil
+call_with_10_and_20 = fn f -> f.(10, 20) end
+
+call_with_10_and_20.(add_two)
 ```
 
 ## Pipe Operator
@@ -640,7 +648,14 @@ multiply = fn int1, int2 -> int1 * int2 end
 Enter your solution below.
 
 ```elixir
+add = fn a, b -> a + b end
+subtract = fn a, b -> a - b end
+multiply = fn a, b -> a * b end
 
+10
+|> add.(2)
+|> multiply.(5)
+|> subtract.(4)
 ```
 
 ## Commit Your Progress
