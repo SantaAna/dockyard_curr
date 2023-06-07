@@ -86,7 +86,7 @@ Armed with this knowledge, you're going to create a word guessing game.
 Enter your solution below.
 
 ```elixir
-touch
+
 ```
 
 ## Bonus: Guess The Number
