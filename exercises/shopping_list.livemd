@@ -59,7 +59,12 @@ shopping_cart = shopping_cart ++ ["banana", "banana", "banana"]
 Enter your solution below.
 
 ```elixir
+shopping_cart = []
 
+shopping_cart = shopping_cart ++ ~w(grapes walnuts apples)
+shopping_cart = shopping_cart ++ ~w(blueberries chocolate pizza)
+shopping_cart = shopping_cart -- ~w(grapes walnuts)
+shopping_cart = shopping_cart ++ :lists.duplicate(3, "banana")
 ```
 
 ## Text Shopping List With Quantities
@@ -91,7 +96,13 @@ shopping_cart = shopping_cart ++ [candies: 5]
 </details>
 
 ```elixir
-
+[]
+|> Keyword.put(:milk, 2)
+|> Keyword.put(:eggs, 12)
+|> Keyword.put(:bars_of_butter, 2)
+|> Keyword.put(:candies, 10)
+|> Keyword.update!(:bars_of_butter, &(&1 - 2))
+|> Keyword.update!(:candies, &(&1 - 5))
 ```
 
 ## Commit Your Progress
