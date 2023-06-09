@@ -50,16 +50,19 @@ Implement the `Fibonacci.sequence/1` function below. Do not worry about performa
 
 ```elixir
 defmodule Fibonacci do
-  @doc """
-  Generate the fibonacci sequence of a given length.
-
-  ## Examples
-
-    iex> 
-  """
   def sequence(length) do
+    Enum.map(1..length, &rec_seq/1)
+  end
+
+  def rec_seq(1), do: 0
+  def rec_seq(2), do: 1
+
+  def rec_seq(n) do
+    rec_seq(n - 1) + rec_seq(n - 2)
   end
 end
+
+Fibonacci.sequence(10)
 ```
 
 ## Competition: Benchmark
@@ -68,9 +71,21 @@ In the Elixir cell below, create a `FastFib` module. The `FastFib` module should
 
 ```elixir
 defmodule FastFib do
+  def sequence(1), do: [0]
+  def sequence(2), do: [0, 1]
+
   def sequence(length) do
+    rec_seq(length - 2, [1, 0])
+  end
+
+  def rec_seq(0, acc), do: acc |> Enum.reverse()
+
+  def rec_seq(length, [p, pp | _rest] = acc) do
+    rec_seq(length - 1, [p + pp | acc])
   end
 end
+
+FastFib.sequence(100_000)
 ```
 
 Use [Benchee](https://hexdocs.pm/benchee/Benchee.html) to benchmark the performance of `FastFib.sequence/1` function. The student in the class with the fastest `FastFib` time wins.
@@ -82,13 +97,13 @@ Benchee.run(
   },
   inputs: %{
     "1: small" => 10,
-    "2: medium" => 30
+    "2: medium" => 30,
     # Uncomment the following if your solution can handle it! 
     # Make sure to add a comma above.
-    # "3: large" => 100,
-    # "4: xl" => 1000,
-    # "6: 2xl" => 10000,
-    # "7: 3xl" => 100_000
+    "3: large" => 100,
+    "4: xl" => 1000,
+    "6: 2xl" => 10000,
+    "7: 3xl" => 100_000
   },
   memory_time: 2
 )
