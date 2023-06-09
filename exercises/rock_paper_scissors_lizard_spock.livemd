@@ -113,6 +113,25 @@ Implement the `RockPaperScissorsLizardSpock` module below.
 
 ```elixir
 defmodule RockPaperScissorsLizardSpock do
+  @winners MapSet.new([
+             [:lizard, :spock],
+             [:lizard, :paper],
+             [:spock, :scissors],
+             [:spock, :rock],
+             [:rock, :scissors],
+             [:rock, :lizard],
+             [:paper, :rock],
+             [:paper, :spock],
+             [:scissors, :paper],
+             [:scissors, :lizard]
+           ])
+  @valid_throws [
+    :rock,
+    :paper,
+    :scissors,
+    :lizard,
+    :spock
+  ]
   @doc """
   ## Examples
 
@@ -127,8 +146,30 @@ defmodule RockPaperScissorsLizardSpock do
       iex> RockPaperScissorsLizardSpock.beats?(:spock, :paper)
       false
   """
-  def beats?(guess1, guess2) do
-  end
+
+  # Rock beats Lizard.
+  # Lizard beats Spock.
+  # Spock beats Scissors.
+  # Scissors beats Lizard.
+  # Lizard beats Paper.
+  # Paper beats Spock.
+  # Spock beats Rock.
+
+  # def beats?(guess1, guess2) do
+  #   case [guess1, guess2] do
+  #     [:lizard, :spock] -> true
+  #     [:lizard, :paper] -> true
+  #     [:spock, :scissors] -> true
+  #     [:spock, :rock] -> true
+  #     [:rock, :scissors] -> true
+  #     [:rock, :lizard] -> true
+  #     [:paper, :rock] -> true
+  #     [:paper, :spock] -> true
+  #     [:scissors, :paper] -> true
+  #     [:scissors, :lizard] -> true
+  #     _ -> false
+  #   end
+  # end
 
   @doc """
   ## Examples
@@ -137,8 +178,18 @@ defmodule RockPaperScissorsLizardSpock do
       iex> "Player 2 Wins!" = RockPaperScissorsLizardSpock.play(:lizard, :rock)
       iex> "Draw!" = RockPaperScissorsLizardSpock.play(:lizard, :lizard)
   """
-  def play(player1, player2) do
+  def play(player1, player2) when player1 in @valid_throws and player2 in @valid_throws do
+    p1_message = "Player 1 Wins!"
+    p2_message = "Player 2 Wins!"
+
+    cond do
+      MapSet.member?(@winners, [player1, player2]) -> p1_message
+      MapSet.member?(@winners, [player2, player1]) -> p2_message
+      true -> "Draw!"
+    end
   end
+
+  def play(_, _), do: {:error, "invalid input"}
 end
 ```
 
