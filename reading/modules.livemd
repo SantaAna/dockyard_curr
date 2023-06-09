@@ -120,7 +120,7 @@ end
 Call the `MutliParamExample.call/3` function with different arguments.
 
 ```elixir
-
+MultiParamExample.call(1, 2, 3)
 ```
 
 ## Internal Module Functions
@@ -152,7 +152,7 @@ InternalExample.public()
 The module name is optional inside of the module. However, we must include the module name when using the module's function outside of the module. For example, the following will raise an error.
 
 ```elixir
-public()
+InternalExample.public()
 ```
 
 ## Private Functions
@@ -230,7 +230,7 @@ HigherOrder.higher_order_function(&Callback.callback_function/0)
 Notice we cannot simply pass `Callback.callback_function` as an argument.
 
 ```elixir
-HigherOrder.higher_order_function(Callback.callback_function())
+HigherOrder.higher_order_function(&Callback.callback_function/0)
 ```
 
 Alternatively, we can wrap the callback function in an anonymous function.
@@ -318,7 +318,13 @@ end
 Enter your solution below.
 
 ```elixir
+defmodule Languages.Spanish do
+  def greeting do
+    "Hola"
+  end
+end
 
+Languages.Spanish.greeting()
 ```
 
 ### Nested Modules
@@ -516,7 +522,12 @@ end
 </details>
 
 ```elixir
+defmodule Math do
+  def add(a, b), do: a + b
+  def add(a, b, c), do: a + b + c
+end
 
+[Math.add(1, 2), Math.add(1, 2, 3)]
 ```
 
 ## Default Arguments
@@ -583,7 +594,11 @@ Greeting.hello("Andrew")
 ```
 
 ```elixir
+defmodule Greeting do
+  def hello(name \\ "dirk"), do: "hello #{name}!"
+end
 
+[Greeting.hello(), Greeting.hello("flora")]
 ```
 
 ## Documentation
