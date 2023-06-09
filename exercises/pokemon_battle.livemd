@@ -116,8 +116,17 @@ end
 
 ```elixir
 defmodule Pokemon do
+  @weak_mod 0.5
+  @strong_mod 2
   @moduledoc """
   Pokemon
+
+
+    :name will be a string.
+    :type will be an atom of either :grass, :water, or :fire
+    :health will be a float with a default value of 20.0
+    :attack will be an integer with a default value of 5
+    :speed will be an integer
 
   ## Examples
       iex> attacker = %Pokemon{name: "Charmander", type: :fire, health: 20.0, attack: 5, speed: 20}
@@ -125,9 +134,103 @@ defmodule Pokemon do
       iex> Pokemon.attack(attacker, defender)
       %Pokemon{name: "Bulbasaur", type: :grass, health: 10.0, attack: 5, speed: 20}
   """
-  defstruct []
+  defstruct [:name, :type, :health, :attack, :speed, activation: 0]
 
   def attack(attacker, defender) do
+    Map.update!(defender, :health, &(&1 - damage(attacker, defender)))
+  end
+
+  defp damage(attacker, defender) do
+    attack_modifier(attacker, defender) * attacker.attack
+  end
+
+  defp attack_modifier(%Pokemon{type: attacker_type}, %Pokemon{type: defender_type}) do
+    case [attacker_type, defender_type] do
+      [t, t] -> 1
+      [:fire, :grass] -> @strong_mod
+      [:grass, :water] -> @strong_mod
+      [:water, :fire] -> @strong_mod
+      [:fire, :water] -> @weak_mod
+      [:grass, :fire] -> @weak_mod
+      [:water, :grass] -> @weak_mod
+    end
+  end
+
+  def increase_activation(pokemon) do
+    Map.update!(pokemon, :activation, &(&1 + pokemon.speed))
+  end
+
+  def reset_activation(pokemon), do: Map.put(pokemon, :activation, 0)
+end
+```
+
+```elixir
+defmodule Pokemon.Battle do
+  @activation 100
+  def start(pokemon1, pokemon2) do
+    IO.puts("#{pokemon1.name} has started a battle with #{pokemon2.name}\n")
+    resolve_round(pokemon1, pokemon2)
+  end
+
+  def resolve_round(%Pokemon{health: h1}, %Pokemon{health: h2}) when h1 <= 0 and h2 <= 0 do
+    IO.puts("Both Pokemon have been knocked out!  The battle is a draw")
+  end
+
+  def resolve_round(%Pokemon{health: h1} = p1, p2) when h1 <= 0 do
+    winner_message(%{winner: p2, loser: p1})
+  end
+
+  def resolve_round(p1, %Pokemon{health: h1} = p2) when h1 <= 0 do
+    winner_message(%{winner: p1, loser: p2})
+  end
+
+  def resolve_round(%Pokemon{activation: a1} = p1, %Pokemon{activation: a2} = p2)
+      when a1 < @activation and a2 < @activation do
+    resolve_round(Pokemon.increase_activation(p1), Pokemon.increase_activation(p2))
+  end
+
+  def resolve_round(%Pokemon{activation: a1} = p1, %Pokemon{activation: a2} = p2)
+      when a1 >= @activation and a2 >= @activation do
+    updated_p1 = Pokemon.attack(p2, p1)
+    updated_p2 = Pokemon.attack(p1, p2)
+    round_logger([p1, updated_p1], [p2, updated_p2]) |> IO.puts()
+    resolve_round(Pokemon.reset_activation(updated_p1), Pokemon.reset_activation(updated_p2))
+  end
+
+  def resolve_round(%Pokemon{activation: a1} = p1, p2) when a1 >= @activation do
+    updated_p2 = Pokemon.attack(p1, p2)
+    round_logger([p1, p1], [p2, updated_p2]) |> IO.puts()
+    resolve_round(Pokemon.reset_activation(p1), Pokemon.increase_activation(updated_p2))
+  end
+
+  def resolve_round(p1, %Pokemon{activation: a2} = p2) when a2 >= @activation do
+    updated_p1 = Pokemon.attack(p2, p1)
+    round_logger([p1, updated_p1], [p2, p2]) |> IO.puts()
+    resolve_round(Pokemon.increase_activation(updated_p1), Pokemon.reset_activation(p2))
+  end
+
+  defp winner_message(%{winner: w, loser: l}) do
+    IO.puts("#{w.name} has knocked out #{l.name}. #{w.name} is the winner!")
+  end
+
+  def round_logger([p1, p1], [p2_start, p2_after]) do
+    """
+    #{p1.name} attacks #{p2_start.name} for #{p2_start.health - p2_after.health}
+    """
+  end
+
+  def round_logger([p1_start, p1_after], [p2, p2]) do
+    """
+    #{p2.name} attacks #{p1_start.name} for #{p1_start.health - p1_after.health}
+    """
+  end
+
+  def round_logger([p1_start, p1_after], [p2_start, p2_after]) do
+    """
+    The Pokemon attack at the same time.
+    #{p1_start.name} attacks #{p2_start.name} for #{p2_start.health - p2_after.health}
+    #{p2_start.name} attacks #{p1_start.name} for #{p1_start.health - p1_after.health}
+    """
   end
 end
 ```
@@ -135,7 +238,20 @@ end
 Consider using the following Elixir cell to test your solution.
 
 ```elixir
+charmander = %Pokemon{name: "Charmander", type: :fire, health: 20.0, attack: 5, speed: 20}
+bulbasaur = %Pokemon{name: "Bulbasaur", type: :grass, health: 20.0, attack: 5, speed: 20}
+squirtle = %Pokemon{name: "Squirtle", type: :water, health: 20.0, attack: 5, speed: 10}
+bench = [charmander, bulbasaur, squirtle]
 
+for attacker <- bench, defender <- bench do
+  %{
+    attacker: attacker.name,
+    defender: defender.name,
+    defender_after_attack: Pokemon.attack(attacker, defender)
+  }
+end
+
+Pokemon.Battle.start(squirtle, charmander)
 ```
 
 ### Pokemon Instances
