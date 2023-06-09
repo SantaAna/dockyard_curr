@@ -133,7 +133,11 @@ end
 Enter your solution below.
 
 ```elixir
+hot_or_cold = fn temp ->
+  if temp in 0..10, do: :cold, else: :hot
+end
 
+hot_or_cold.(11)
 ```
 
 ## Clear Control Flow
@@ -278,16 +282,27 @@ We can provide any number of cases. Cases use pattern matching to decide which r
 Return each value from `1` to `5` by changing the `condition` variable below.
 
 ```elixir
-condition = nil
+conditions = [
+  :red,
+  "blue",
+  %{key: "value"},
+  123,
+  [1, 2, 3],
+  "weast"
+]
 
-case condition do
-  :red -> 1
-  "blue" -> 2
-  %{key: "value"} -> 3
-  123 -> 4
-  [1, 2, 3] -> 5
-  _ -> "default"
+condition = fn condition ->
+  case condition do
+    :red -> 1
+    "blue" -> 2
+    %{key: "value"} -> 3
+    123 -> 4
+    [1, 2, 3] -> 5
+    _ -> "default"
+  end
 end
+
+Enum.map(conditions, condition)
 ```
 
 ## Pattern Matching With Case
@@ -378,16 +393,27 @@ end
 Return each result from `1` to `5` by changing the `condition` variable below.
 
 ```elixir
-condition = nil
+conditions = [
+  [1, 2, 3],
+  [1, 2],
+  {1, 2},
+  %{key1: 1, key2: "value"},
+  {1, 1, %{key: [1, 2, 3]}},
+  1
+]
 
-case condition do
-  [1, 2, 3] -> 1
-  [_head | _tail] -> 2
-  {_, _} -> 3
-  %{key1: _, key2: "value"} -> 4
-  {1, _, %{key: [1, _, _]}} -> 5
-  _ -> "default"
+con = fn condition ->
+  case condition do
+    [1, 2, 3] -> 1
+    [_head | _tail] -> 2
+    {_, _} -> 3
+    %{key1: _, key2: "value"} -> 4
+    {1, _, %{key: [1, _, _]}} -> 5
+    _ -> "default"
+  end
 end
+
+Enum.map(conditions, con)
 ```
 
 ## Cond
@@ -517,7 +543,19 @@ end
 </details>
 
 ```elixir
+grades = [1, 55, 70, 100, 110]
 
+grader = fn g ->
+  cond do
+    g <= 54 -> "D"
+    g <= 69 -> "C"
+    g <= 84 -> "B"
+    g <= 100 -> "A"
+    true -> {:error, "invalid score"}
+  end
+end
+
+Enum.map(grades, grader)
 ```
 
 ## Unless
@@ -571,7 +609,9 @@ In the Elixir cell below
 * Create an `unless` statement. which returns `"awake"` unless `tired`.
 
 ```elixir
+tired = false
 
+unless tired, do: "awake"
 ```
 
 ## Commit Your Progress
