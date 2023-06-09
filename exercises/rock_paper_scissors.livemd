@@ -66,7 +66,10 @@ Then, return the winning choice of either `:rock`, `:paper`, or `:scissors` that
 Enter your solution below.
 
 ```elixir
+winning_choices = [rock: :paper, paper: :scissors, scissors: :rock]
+computer_play = fn human_play -> winning_choices[human_play] end
 
+computer_play.(:scissors)
 ```
 
 ## Create Two Player Rock Paper Scissors
@@ -119,7 +122,56 @@ Bind a `player1_choice` and `player2_choice` variable to `:rock`, `:paper`, or `
 Enter your solution below.
 
 ```elixir
+game = fn p1c, p2c ->
+  p1_winning_message = "Player 1 Wins"
+  p2_winning_message = "Player 2 Wins"
 
+  case [p1c, p2c] do
+    [a, a] -> "Draw"
+    [:rock, :scissors] -> p1_winning_message
+    [:paper, :rock] -> p1_winning_message
+    [:scissors, :paper] -> p1_winning_message
+    _ -> p2_winning_message
+  end
+end
+
+for p1 <- [:rock, :paper, :scissors], p2 <- [:rock, :paper, :scissors] do
+  "p1 plays #{p1} p2 plays #{p2} result: #{game.(p1, p2)}"
+end
+```
+
+```elixir
+p2_message = "Player 2 Wins"
+p1_message = "Player 1 Wins"
+
+game2 = fn
+  :rock ->
+    fn
+      :rock -> "draw"
+      :paper -> p2_message
+      :scissors -> p1_message
+    end
+
+  :paper ->
+    fn
+      :rock -> p1_message
+      :paper -> "draw"
+      :scissors -> p2_message
+    end
+
+  :scissors ->
+    fn
+      :rock -> p2_message
+      :paper -> p1_message
+      :scissors -> "draw"
+    end
+end
+
+half_games = Enum.map([:rock, :paper, :scissors], game2)
+
+for p2 <- [:rock, :paper, :scissors], h <- half_games do
+  h.(p2)
+end
 ```
 
 ## Commit Your Progress
