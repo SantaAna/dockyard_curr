@@ -91,6 +91,8 @@ maze = %{
     }
   }
 }
+
+maze.south.west.south.east.south.east.south
 ```
 
 ## The String Maze
@@ -152,6 +154,11 @@ maze = %{
     }
   }
 }
+
+s = "south"
+e = "east"
+w = "west"
+maze[s][e][s][w][s][w][s][e][s]
 ```
 
 ## Bonus: Treasure Map
