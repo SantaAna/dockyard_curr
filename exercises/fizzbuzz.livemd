@@ -93,6 +93,13 @@ defmodule FizzBuzz do
     ["buzz", 11, "fizz", 13, 14, "fizzbuzz"]
   """
   def run(range) do
+    range
+    |> Enum.map(fn
+      x when rem(x, 3) == 0 and rem(x, 5) == 0 -> "fizzbuzz"
+      x when rem(x, 3) == 0 -> "fizz"
+      x when rem(x, 5) == 0 -> "buzz"
+      x -> x
+    end)
   end
 end
 ```
