@@ -354,7 +354,7 @@ Enum.map([one: 1, two: 2], fn element -> element end)
 We can even pattern match on the key and value in the tuple.
 
 ```elixir
-Enum.map(%{"one" => 1, "two" => 2}, fn {_key, value} -> value end)
+/2 And Enum.reduce/3Enum.map(%{"one" => 1, "two" => 2}, fn {_key, value} -> value end)
 ```
 
 ```elixir
@@ -384,7 +384,7 @@ Enum.map(1..10, fn integer -> "#{integer}" end)
 Enter your solution below.
 
 ```elixir
-
+Enum.map(1..10, &Integer.to_string/1)
 ```
 
 ## Enum.reduce/2 And Enum.reduce/3
@@ -506,7 +506,14 @@ end)
 Enter your solution below.
 
 ```elixir
+Enum.reduce(1..10, 0, fn num, acc ->
+  case rem(num, 2) do
+    0 -> acc + num
+    _ -> acc
+  end
+end)
 
+Enum.reduce(2..10//2, 0, &(&1 + &2))
 ```
 
 ## Enum.filter
@@ -544,7 +551,8 @@ odd_numbers = Enum.filter(1..10, fn integer -> rem(integer, 2) != 0 end)
 Enter your solution below.
 
 ```elixir
-
+evens = Enum.filter(1..10, &(rem(&1, 2) == 0))
+odds = Enum.filter(1..10, &(rem(&1, 2) == 1))
 ```
 
 ## Enum.all?/2
@@ -595,6 +603,8 @@ Use [Enum.all/2](https://hexdocs.pm/elixir/Enum.html#all/2) to determine if all 
 
 ```elixir
 colors = [:green, :green, :red]
+
+Enum.all?(colors, &(&1 == :green))
 ```
 
 ## Enum.any?/2
@@ -635,6 +645,8 @@ Use [Enum.any?/2](https://hexdocs.pm/elixir/Enum.html#any?/2) to determine if an
 
 ```elixir
 animals = [:cats, :dogs, :bears, :lions, :penguins]
+
+Enum.any?(animals, &(&1 == :dogs))
 ```
 
 ## Enum.count/1
@@ -662,6 +674,7 @@ In the Elixir cell below, count the number of elements in the `collection`. It s
 
 ```elixir
 collection = [1, 2, 3, 4, 5]
+Enum.count(collection)
 ```
 
 ## Enum.find/3
@@ -690,6 +703,7 @@ Use [Enum.find/2](https://hexdocs.pm/elixir/Enum.html#find/2) to find the first 
 
 ```elixir
 [1, "2", "three", 4, "five", 6]
+|> Enum.find(&(is_integer(&1) and rem(&1, 2) == 0))
 ```
 
 ## Enum.random/1
@@ -716,7 +730,8 @@ Enum.map(1..10, fn _ -> Enum.random(0..9) end)
 Enter your solution below.
 
 ```elixir
-
+0..10
+|> Enum.map(fn _x -> Enum.random(0..9) end)
 ```
 
 ## Capture Operator And Module Functions
