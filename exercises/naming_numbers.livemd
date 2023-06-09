@@ -84,7 +84,37 @@ naming_numbers.(1)
 Enter your solution below.
 
 ```elixir
+naming_numbers = fn n ->
+  case n do
+    0 -> "zero"
+    1 -> "one"
+    2 -> "two"
+    3 -> "three"
+    4 -> "four"
+    5 -> "five"
+    6 -> "six"
+    7 -> "seven"
+    8 -> "eight"
+    9 -> "nine"
+    _ -> "I don't know you!"
+  end
+end
 
+translation_map = %{
+  0 => "zero",
+  1 => "one",
+  2 => "two",
+  3 => "three",
+  4 => "four",
+  5 => "five",
+  6 => "six",
+  7 => "seven",
+  8 => "eight",
+  9 => "nine"
+}
+
+Enum.map(1..10, naming_numbers)
+Enum.map(1..10, &translation_map[&1])
 ```
 
 ## Numbering Names
@@ -181,7 +211,46 @@ flowchart
 </details>
 
 ```elixir
+numbering_names = fn n ->
+  case String.downcase(n) do
+    "zero" -> 0
+    "one" -> 1
+    "two" -> 2
+    "three" -> 3
+    "four" -> 4
+    "five" -> 5
+    "six" -> 6
+    "seven" -> 7
+    "eight" -> 8
+    "nine" -> 9
+  end
+end
 
+numbering_names.("NINE")
+```
+
+```elixir
+flipped =
+  for {k, v} <- translation_map, into: %{} do
+    {v, k}
+  end
+
+flipped =
+  for {k, v} <- flipped, into: flipped do
+    {String.upcase(k), v}
+  end
+
+flipped
+```
+
+```elixir
+flip_map =
+  Map.merge(
+    Enum.map(translation_map, fn {k, v} -> {v, k} end)
+    |> Map.new(),
+    Enum.map(translation_map, fn {k, v} -> {String.upcase(v), k} end)
+    |> Map.new()
+  )
 ```
 
 ## Commit Your Progress
