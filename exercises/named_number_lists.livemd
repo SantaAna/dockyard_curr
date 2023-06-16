@@ -87,8 +87,12 @@ flowchart
 Enter your solution below.
 
 ```elixir
-numbers = [1, 2, 3, 4, 2, 7, 8, 0, 4, 5, 6]
-strings = ["one", "two", "three", "four", "two", "seven", "eight", "zero", "four", "five", "six"]
+numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+strings = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
+
+nums = {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"}
+
+Enum.map(0..9, fn _ -> Enum.random(0..9) end) |> Enum.map(&elem(nums, &1)) |> IO.inspect()
 
 translations =
   Enum.zip_reduce([numbers, strings], %{}, fn [num, str], acc ->
