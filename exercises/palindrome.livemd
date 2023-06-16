@@ -63,6 +63,10 @@ end
 Implement the `Palindrome` module as documented below.
 
 ```elixir
+"hello" |> String.graphemes() |> Enum.reverse() |> Enum.join()
+```
+
+```elixir
 defmodule Palindrome do
   @moduledoc """
   Documentation for `Palindrome`.
@@ -86,6 +90,7 @@ defmodule Palindrome do
     false
   """
   def palindrome?(string) do
+    string == String.graphemes(string) |> Enum.reverse() |> Enum.join()
   end
 end
 ```
