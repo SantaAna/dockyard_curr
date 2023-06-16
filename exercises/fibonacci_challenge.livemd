@@ -78,7 +78,7 @@ defmodule FastFib do
     rec_seq(length - 2, [1, 0])
   end
 
-  def rec_seq(0, acc), do: acc |> Enum.reverse()
+  def rec_seq(0, acc), do: acc
 
   def rec_seq(length, [p, pp | _rest] = acc) do
     rec_seq(length - 1, [p + pp | acc])
@@ -88,12 +88,34 @@ end
 FastFib.sequence(100_000)
 ```
 
+```elixir
+defmodule StreamFib do
+  def fib(n) do
+    Stream.unfold(%{pp: 0, p: 1, count: 0}, fn
+      %{count: c} when c > n ->
+        nil
+
+      %{pp: cur, count: _c} = acc ->
+        {cur,
+         Map.put(acc, :pp, acc.p)
+         |> Map.update!(:p, &(&1 + acc.pp))
+         |> Map.update!(:count, &(&1 + 1))}
+    end)
+    |> Enum.to_list()
+  end
+end
+
+StreamFib.fib(100_000)
+|> Enum.to_list()
+```
+
 Use [Benchee](https://hexdocs.pm/benchee/Benchee.html) to benchmark the performance of `FastFib.sequence/1` function. The student in the class with the fastest `FastFib` time wins.
 
 ```elixir
 Benchee.run(
   %{
-    fast_fib: fn n -> FastFib.sequence(n) end
+    fast_fib: fn n -> FastFib.sequence(n) end,
+    stream_fast_fib: fn n -> StreamFib.fib(n) end
   },
   inputs: %{
     "1: small" => 10,
