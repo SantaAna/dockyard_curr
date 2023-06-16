@@ -137,7 +137,17 @@ end
 </details>
 
 ```elixir
+Access.at(0)
+```
+
+```elixir
 defmodule TicTacToe do
+  @board_size 2
+  @win_checkers [
+    &TicTacToe.diagonal_winner/1,
+    &TicTacToe.column_winner/1,
+    &TicTacToe.row_winner/1
+  ]
   @moduledoc """
     Documentation for `TicTacToe`
   """
@@ -161,7 +171,11 @@ defmodule TicTacToe do
       iex> TicTacToe.at(board, {0, 2})
       "A"
   """
-  def at(board, coordinate) do
+  def at(board, {x, y}) do
+    get_in(board, [Access.at(@board_size - y), Access.at(x)])
+    # board
+    # |> Enum.at(@board_size - y)
+    # |> Enum.at(x)
   end
 
   @doc """
@@ -179,9 +193,165 @@ defmodule TicTacToe do
       iex> TicTacToe.fill(board, {1, 1}, "O")
       [[nil, nil, nil], [nil, "O", nil], [nil, nil, nil]]
   """
-  def fill(board, coordinate, symbol) do
+  def fill(board, {x, y}, symbol) do
+    put_in(board, [Access.at(@board_size - y), Access.at(y)], symbol)
+
+    # board
+    # |> List.update_at(@board_size - y, fn row -> 
+    #   List.replace_at(row, x, symbol)
+    # end)
   end
+
+  @doc """
+  Determine if a player has won the game.
+
+  ## Examples
+
+   Row Wins:
+
+   iex> TicTacToe.winner([["X", "X", "X"], [nil, nil, nil], [nil, nil, nil]])
+   "X"
+   iex> TicTacToe.winner([[nil, nil, nil], ["X", "X", "X"], [nil, nil, nil]])
+   "X"
+   iex> TicTacToe.winner([[nil, nil, nil], [nil, nil, nil], ["X", "X", "X"]])
+   "X"
+
+   Column Wins:
+
+   iex> TicTacToe.winner([["X", nil, nil], ["X", nil, nil], ["X", nil, nil]])
+   "X"
+   iex> TicTacToe.winner([[nil, "X", nil], [nil, "X", nil], [nil, "X", nil]])
+   "X"
+   iex> TicTacToe.winner([[nil, nil, "X"], [nil, nil, "X"], [nil, nil, "X"]])
+   "X"
+
+   Diagonal Wins
+
+   iex> TicTacToe.winner([["X", nil, nil], [nil, "X", nil], [nil, nil, "X"]])
+   "X"
+   iex> TicTacToe.winner([[nil, nil, "X"], [nil, "X", nil], ["X", nil, nil]])
+   "X"
+
+   No Winner
+
+   iex> TicTacToe.winner([[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]])
+   nil
+   iex> TicTacToe.winner([[nil, "X", nil], [nil, "X", nil], [nil, nil, nil]])
+   nil
+
+  """
+
+  def winner(board) do
+    win_checker(board, @win_checkers)
+  end
+
+  # def winner(board) do
+  #   case [diagonal_winner(board), column_winner(board), row_winner(board)] do
+  #     [false, false, false] -> nil
+  #     [a, false, false] -> a
+  #     [false, a, false] -> a
+  #     [false, false, a] -> a
+  #   end
+  # end
+
+  def win_checker(board, win_functions) do
+    Enum.map(win_functions, fn f -> f.(board) end)
+    |> Enum.find(nil, & &1)
+  end
+
+  # def diagonal_winner(board) do
+  #   case board do
+  #     [[a, _, _], [_, a, _], [_, _, a]] when a != nil -> a
+  #     [[_, _, a], [_, a, _], [a, _, _]] when a != nil -> a
+  #     _ -> false
+  #   end
+  # end
+
+  def diagonal_winner(board) do
+    diagonal1 =
+      for x <- 0..@board_size do
+        TicTacToe.at(board, {x, @board_size - x})
+      end
+
+    diagonal2 =
+      for x <- 0..@board_size do
+        TicTacToe.at(board, {x, x})
+      end
+
+    all_same?(diagonal1) || all_same?(diagonal2)
+  end
+
+  def all_same?(list, default \\ false) do
+    ms = MapSet.new(list)
+
+    if Enum.count(ms) == 1 && !MapSet.member?(ms, nil) do
+      Enum.at(ms, 0)
+    else
+      default
+    end
+  end
+
+  def columns(board) do
+    for x <- 0..@board_size do
+      Enum.map(0..@board_size, &TicTacToe.at(board, {x, &1}))
+    end
+  end
+
+  # def column_winner(board) do
+  #   for x <- 0..@board_size do
+  #     Enum.map(0..@board_size, & TicTacToe.at({x, &1}))
+  #   end
+  # end
+
+  def column_winner(board) do
+    board
+    |> columns()
+    |> TicTacToe.row_winner()
+  end
+
+  # def column_winner(board) do
+  #   case board do
+  #     [[a, _, _], [a, _, _], [a, _, _]] when a != nil -> a
+  #     [[_, a, _], [_, a, _], [_, a, _]] when a != nil -> a
+  #     [[_, _, a], [_, _, a], [_, _, a]] when a != nil -> a
+  #     _ -> false
+  #   end
+  # end
+
+  def row_winner(board) do
+    Enum.reduce(board, false, fn row, acc ->
+      TicTacToe.all_same?(row, acc)
+    end)
+  end
+
+  # def transpose(board) do
+  #   for x <- 0..@board_size,
+  #       y <- 0..@board_size,
+  #       reduce: TicTacToe.blank_board() do
+  #     acc -> put_in(acc, [Access.at(@board_size - x), Access.at(y)], TicTacToe.at(board, {x, y}))
+  #   end
+  # end
+
+  # def blank_board() do
+  #   for x <- 0..@board_size do
+  #     List.duplicate(nil, @board_size + 1)
+  #   end
+  # end
+
+  # def row_winner(board) do
+  #   case board do
+  #     [[a, a, a], [_, _, _], [_, _, _]] when a != nil -> a
+  #     [[_, _, _], [a, a, a], [_, _, _]] when a != nil -> a
+  #     [[_, _, _], [_, _, _], [a, a, a]] when a != nil -> a
+  #     _ -> false
+  #   end
+  # end
 end
+```
+
+```elixir
+MapSet.new(["x", "x", "x"])
+MapSet.new(["x", "o", "x"])
 ```
 
 ### Bonus: Winner
