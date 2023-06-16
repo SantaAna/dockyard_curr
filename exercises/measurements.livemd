@@ -69,6 +69,50 @@ end
 Implement the `Measurements` module according to the documented function examples.
 
 ```elixir
+l = [1, 2, 3]
+[head | rest] = l
+[first | [second | rest]] = l
+[first, second | rest] = l
+IO.inspect([first, second, rest])
+
+case l do
+  [1, 4 | rest] -> "first"
+  [1, 2 | rest] -> "second"
+end
+
+(fn
+   [1, 4 | rest] -> "first"
+   [1, 2 | rest] -> "second"
+ end).(l)
+```
+
+```elixir
+defmodule O do
+  def increments(measurements) do
+    Enum.reduce(measurements, %{incs: [], prev: nil}, fn
+      each, %{prev: nil} = acc ->
+        %{acc | prev: each}
+
+      each, %{prev: prev} = acc ->
+        Map.update!(acc, :incs, fn incs -> [each - prev | incs] end)
+        |> Map.put(:prev, each)
+    end)
+    |> Map.get(:incs)
+    |> Enum.reverse()
+  end
+
+  def other_increments(measurements), do: other_increments(measurements, [])
+  defp other_increments([_a], acc), do: Enum.reverse(acc)
+
+  defp other_increments([a, b | rest], acc) do
+    other_increments([b | rest], [b - a | acc])
+  end
+end
+
+O.other_increments([100, 150, 120, 130])
+```
+
+```elixir
 defmodule Measurements do
   @doc """
   Given a list of measurements as integers, determine the increment between each integer.
@@ -150,6 +194,9 @@ defmodule Measurements do
       |> Enum.count()
 
     sum / count
+  end
+
+  def other_average(measurements) do
   end
 end
 ```
