@@ -83,6 +83,13 @@ defmodule Anagram do
     true
   """
   def anagram?(word, possible_anagram) do
+    to_normalized(word) == to_normalized(possible_anagram)
+  end
+
+  defp to_normalized(string) do
+    string
+    |> String.graphemes()
+    |> Enum.sort()
   end
 
   @doc """
@@ -100,6 +107,7 @@ defmodule Anagram do
     []
   """
   def filter_anagrams(word_list, anagram) do
+    Enum.filter(word_list, &anagram?(&1, anagram))
   end
 end
 ```
@@ -128,9 +136,32 @@ defmodule AnagramSolver do
     iex> AnagramSolver.solve("abc")
     ["abc", "acb", "bac", "bca", "cab", "cba"]
   """
-  def solve(string) do
+
+  def solve(string) when is_binary(string) do
+    solve(String.graphemes(string), "")
+  end
+
+  def solve([], acc), do: acc
+
+  def solve(letters, acc) do
+    for l <- letters do
+      solve(letters -- [l], acc <> l)
+    end
+    |> List.flatten()
   end
 end
+```
+
+```elixir
+AnagramSolver.solve("abc")
+```
+
+```elixir
+Enum.flat_map(1..3, fn x ->
+  Enum.map(1..3, fn y ->
+    {x, y}
+  end)
+end)
 ```
 
 ## Commit Your Progress
