@@ -125,12 +125,38 @@ end
 
 ```elixir
 defmodule Products do
+  @max_price 100
   def all_items do
+    for price <- 1..@max_price, item <- ["computer", "phone", "tablet"] do
+      %{name: item, price: price}
+    end
   end
 
-  def search(items, filters) do
+  def search(items, filters \\ []) do
+    name_finder =
+      if name = Keyword.get(filters, :name) do
+        fn item -> item.name == name end
+      else
+        fn item -> true end
+      end
+
+    # items
+    # |> Enum.filter(& &1.price >= Keyword.get(filters, :min, 1))
+    # |> Enum.filter(& &1.price <= Keyword.get(filters, :max, @max_price))
+    # |> Enum.filter(name_finder)
+
+    for item <- items,
+        item.price >= Keyword.get(filters, :min, 1),
+        item.price <= Keyword.get(filters, :max, @max_price),
+        name_finder.(item) do
+      item
+    end
   end
 end
+```
+
+```elixir
+Products.all_items() |> Products.search(min: 10, max: 50)
 ```
 
 ## Commit Your Progress
