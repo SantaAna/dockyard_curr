@@ -79,7 +79,12 @@ defmodule NumberFinder do
     iex> NumberFinder.smallest([2, 2, 3, 4, 10, 20, -3])
     -3
   """
-  def smallest(number_list) do
+  def smallest([]), do: nil
+
+  def smallest([first | rest]) do
+    Enum.reduce(rest, first, fn num, smallest ->
+      min(num, smallest)
+    end)
   end
 
   @doc """
@@ -94,7 +99,12 @@ defmodule NumberFinder do
     iex> NumberFinder.largest([2, 2, 3, 4, 10, 20, -3])
     20
   """
-  def largest(number_list) do
+  def largest([]), do: nil
+
+  def largest([first | rest]) do
+    Enum.reduce(rest, first, fn num, largest ->
+      max(num, largest)
+    end)
   end
 end
 ```
