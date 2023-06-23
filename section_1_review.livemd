@@ -28,30 +28,34 @@ Access the `"hello"` key's value from the following map:
 
 ```elixir
 string_map = %{"hello" => "world"}
+string_map["hello"]
 ```
 
 Access the `:hello` key's value from the following map:
 
 ```elixir
 atom_map = %{hello: "world"}
+atom_map.hello
 ```
 
 Use pattern matching to bind `1`, `2`, and `3` to variables `one`, `two`, and `three` in the following tuple.
 
 ```elixir
-{1, 2, 3}
+{one, two, three} = {1, 2, 3}
 ```
 
 Use pattern matching to bind the `head` and the `tail` of the following list.
 
 ```elixir
-[1, 2, 3]
+[head | tail] = [1, 2, 3]
+{head, tail}
 ```
 
 Use pattern matching to bind `:a` and `:b` in the following keyword list to variables `a` and `b`.
 
 ```elixir
-[a: 1, b: 2]
+[{a, 1}, {b, 2}] = [a: 1, b: 2]
+{a, b}
 ```
 
 ## Control Flow
@@ -76,6 +80,13 @@ defmodule Grade do
   "D"
   """
   def letter_grade(integer) do
+    cond do
+      integer in 86..100 -> "A"
+      integer in 72..85 -> "B"
+      integer in 62..71 -> "C"
+      integer in 51..61 -> "D"
+      true -> "F"
+    end
   end
 
   @doc """
@@ -93,6 +104,13 @@ defmodule Grade do
   62..71
   """
   def grade_range(letter) do
+    case letter do
+      "A" -> 86..100
+      "B" -> 72..85
+      "C" -> 62..71
+      "D" -> 51..61
+      "F" -> 0..50
+    end
   end
 
   @doc """
@@ -108,6 +126,7 @@ defmodule Grade do
   "20 is a failing grade."
   """
   def pass?(integer) do
+    if integer >= 50, do: "#{integer} is a passing grade.", else: "#{integer} is a failing grade."
   end
 end
 ```
@@ -125,13 +144,16 @@ erDiagram
 ```
 
 ```elixir
-
+defmodule Post do
+  @enforce_keys [:title, :content]
+  defstruct @enforce_keys
+end
 ```
 
 Create an instance of the `Post` struct you defined above.
 
 ```elixir
-
+%Post{title: "h", content: "w"}
 ```
 
 ## Enumeration
@@ -147,6 +169,7 @@ defmodule Enumeration do
   [2, 4, 6, 8, 10]
   """
   def double(list) do
+    Enum.map(list, &(&1 * 2))
   end
 
   @doc """
@@ -156,6 +179,7 @@ defmodule Enumeration do
   [2, 2, 4]
   """
   def evens(list) do
+    Enum.filter(list, &(rem(&1, 2) == 0))
   end
 
   @doc """
@@ -165,6 +189,9 @@ defmodule Enumeration do
   8
   """
   def sum_evens(list) do
+    list
+    |> evens()
+    |> Enum.sum()
   end
 end
 ```
@@ -183,18 +210,21 @@ Update (increment) the `:count` key in this map to return `%{count: 2}`.
 
 ```elixir
 %{count: 1}
+|> Map.update!(:count, &(&1 + 1))
 ```
 
 Set the `:greeting` key in this map to be `"hi"` instead of `"hello"`.
 
 ```elixir
 %{greeting: "hello"}
+|> Map.put(:greeting, "hi")
 ```
 
 Delete the `:complete` key from this map to return an empty map.
 
 ```elixir
 %{complete: "task"}
+|> Map.delete(:complete)
 ```
 
 ### List
@@ -205,18 +235,21 @@ Delete the `"a"` element in this list.
 
 ```elixir
 ["a", "b", "c"]
+|> List.delete_at(0)
 ```
 
 Insert a "b" element at index `1` in this list.
 
 ```elixir
 ["a", "c"]
+|> List.insert_at(1, "b")
 ```
 
 Update the element at index `1` in this list to be lowercase.
 
 ```elixir
 ["a", "B", "c"]
+|> List.update_at(1, &String.downcase/1)
 ```
 
 ### Keyword List
@@ -227,6 +260,7 @@ Delete the `:a` key/value pair in this keyword list.
 
 ```elixir
 [a: 1]
+|> Keyword.delete(:a)
 ```
 
 Insert a `:b` key with the value `2` in this keyword list at index `1` to create `[a: 1, b: 2, c: 3]`. Order does matter.
@@ -240,12 +274,14 @@ Remember that you can use `List` functions such as `List.insert_at/3` with keywo
 
 ```elixir
 [a: 1, c: 3]
+|> List.insert_at(1, {:b, 2})
 ```
 
 Retrieve the value for the `:label` key in this keyword list of options.
 
 ```elixir
 [label: "some label"]
+|> Keyword.get(:label)
 ```
 
 ## Strings and Regex
@@ -254,30 +290,37 @@ Split all of the letters in this string to make `["a", "b", "c"]`.
 
 ```elixir
 "abc"
+|> String.graphemes()
 ```
 
 Find all of the single digit characters in this string to make `["1", "2", "2", "3"]`
 
 ```elixir
-"a1b22c3"
+string = "a1b22c3"
+
+Regex.scan(~r/\d/, string)
+|> List.flatten()
 ```
 
 Determine if the `<<2::2>>` bitstring is a valid binary. This should be `false`.
 
 ```elixir
 <<2::2>>
+|> is_binary()
 ```
 
 Determine if `<<2::2>>` is a bitstring. This should be `true`.
 
 ```elixir
 <<2::2>>
+|> is_bitstring()
 ```
 
 Determine if `"hello"` is a valid binary. This should be `true`.
 
 ```elixir
 "hello"
+|> is_binary()
 ```
 
 ## Recursion
@@ -290,7 +333,10 @@ defmodule Recursion do
   iex> Recursion.sum([1, 2, 3])
   6
   """
-  def sum(list) do
+  def sum([]), do: 0
+
+  def sum([head | tail]) do
+    head + sum(tail)
   end
 end
 ```
