@@ -121,7 +121,31 @@ defmodule Timeline do
     [9, 12, 2]
   """
   def from_dates(dates) do
+    Enum.chunk_every(dates, 2, 1, :discard)
+    |> Enum.map(fn [start_date, end_date] ->
+      Date.diff(end_date, start_date)
+    end)
   end
+
+  def rec_from_dates(dates) do
+    rec_from_dates(dates, [])
+  end
+
+  defp rec_from_dates([], acc), do: acc |> Enum.reverse()
+  defp rec_from_dates([_element], acc), do: acc |> Enum.reverse()
+
+  defp rec_from_dates([n, nn | rest], acc) do
+    rec_from_dates(
+      [nn | rest],
+      [Date.diff(nn, n) | acc]
+    )
+  end
+
+  def very_rec_from_dates([]), do: []
+  def very_rec_from_dates([_element]), do: []
+
+  def very_rec_from_dates([n, nn | rest]),
+    do: [Date.diff(nn, n) | very_rec_from_dates([nn | rest])]
 
   @doc """
   Given a list of "YYYY-MM-DD" strings return a timeline of days between each date.
@@ -139,8 +163,47 @@ defmodule Timeline do
     [9, 12, 2]
   """
   def from_strings(date_strings) do
+    date_strings
+    |> Enum.map(&Date.from_iso8601!/1)
+    |> from_dates()
   end
 end
+```
+
+```elixir
+Timeline.very_rec_from_dates([~D[2020-01-01], ~D[2020-01-10], ~D[2020-01-22], ~D[2020-01-24]])
+```
+
+```elixir
+Timeline.rec_from_dates([~D[2020-01-01], ~D[2020-01-10], ~D[2020-01-22], ~D[2020-01-24]])
+
+create_test_dates = fn reps ->
+  List.duplicate([~D[2020-01-01], ~D[2020-01-10], ~D[2020-01-22], ~D[2020-01-24]], reps)
+  |> List.flatten()
+end
+
+Enum.map([100, 200, 400, 800, 1600, 3200], fn reps ->
+  {rec_time, _result} =
+    :timer.tc(
+      Timeline,
+      :rec_from_dates,
+      [create_test_dates.(reps)]
+    )
+
+  {enum_time, _result} =
+    :timer.tc(
+      Timeline,
+      :from_dates,
+      [create_test_dates.(reps)]
+    )
+
+  [
+    trial_size: 3 * reps,
+    enum_time: enum_time,
+    rec_time: rec_time,
+    difference: enum_time - rec_time
+  ]
+end)
 ```
 
 ## Commit Your Progress

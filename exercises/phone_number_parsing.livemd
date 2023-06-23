@@ -100,7 +100,20 @@ end
 Implement the `PhoneNumber` module as documented below.
 
 ```elixir
+text = "1231231234 123 123 1234 (123)-123-1234 (123) 123 1234 (123)123-1234"
+
+pattern = ~r/\(?(\d{3})\)?[-,\s]?(\d{3})[-,\s]?(\d{4})/
+
+Regex.scan(pattern, text)
+```
+
+```elixir
 defmodule PhoneNumber do
+  @phone_pattern ~r/
+  \(?(\d{3})\)?  #area code
+  [-,\s]?(\d{3}) #prefix
+  [-,\s]?(\d{4}) #final four numbers
+  /x
   @moduledoc """
   Documentation for `PhoneNumber`
   """
@@ -129,6 +142,13 @@ defmodule PhoneNumber do
     "123-123-1234 456-456-4567"
   """
   def parse(string) do
+    Regex.scan(@phone_pattern, string)
+    |> Enum.map(&create_standard_from_groups/1)
+    |> Enum.join(" ")
+  end
+
+  defp create_standard_from_groups([_full, group1, group2, group3]) do
+    "#{group1}-#{group2}-#{group3}"
   end
 end
 ```

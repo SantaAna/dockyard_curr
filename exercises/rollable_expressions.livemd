@@ -123,7 +123,15 @@ end
 Implement the `Rollable` module as documented below.
 
 ```elixir
+pattern = ~r/(\d+d\d+)/
+
+Regex.run(pattern, "Ice Shard: deal 12d4 ice damage.")
+|> Enum.map(&String.split(&1, "d"))
+```
+
+```elixir
 defmodule Rollable do
+  @dice_pattern ~r/(\d+d\d+)/
   @moduledoc """
   Documentation for `Rollable`
   """
@@ -158,11 +166,41 @@ defmodule Rollable do
     "Ice Shard: deal [12d4](https://www.google.com/search?q=roll+12d4) ice damage."
   """
   def replace(string) do
+    String.replace(string, @dice_pattern, fn group ->
+      roll_replacer(group)
+    end)
+  end
+
+  def roll_replacer(roll) do
+    "[#{roll}](https://www.google.com/search?q=roll+#{roll})"
   end
 
   def roll(string) do
+    {num_dice, dice_max} = parse_roll(string)
+
+    Enum.reduce(1..num_dice, 0, fn _, acc ->
+      acc + roll_die(dice_max)
+    end)
+    |> Integer.to_string()
+  end
+
+  def roll_die(max_number) do
+    :rand.uniform(max_number)
+  end
+
+  @spec parse_roll(String.t()) :: {integer(), integer()}
+  def parse_roll(roll_string) do
+    Regex.run(@dice_pattern, roll_string)
+    |> List.first()
+    |> String.split("d")
+    |> Enum.map(&String.to_integer/1)
+    |> List.to_tuple()
   end
 end
+```
+
+```elixir
+Rollable.roll("I roll 12d2 dice")
 ```
 
 ## Commit Your Progress

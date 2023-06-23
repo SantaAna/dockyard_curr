@@ -1,0 +1,190 @@
+# Strings and Regex Bonus Challenge
+
+## Overview
+
+Many of the problems in this **Bonus Challenge** were inspired by real-world problems we encountered when building the DockYard Academy curriculum.
+
+## Readme Outline Bullets
+
+Given a curriculum outline in the format below, create a bullet list of header sections in the desired format.
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+"""
+## Heading 2
+* Heading 3
+* Heading 3
+* Heading 3
+## Heading 2
+* Heading 3
+* Heading 3
+* Heading 3
+## Heading 2
+"""
+```
+
+```elixir
+outline = """
+# Heading 1
+
+## Heading 2
+### Heading 3
+### Heading 3
+### Heading 3
+## Heading 2
+Hello there
+### Heading 3
+Some other text ##wow##
+### Heading 3
+### Heading 3
+## Heading 2
+"""
+```
+
+```elixir
+Regex.run(~r/^##\s(.+)/, "## Heading 2")
+```
+
+## Insert An Outline
+
+Place the bullet-point outline you created previously between the `<!-- course-outline-start -->` and `<!-- course-outline-start -->` text.
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+"""
+# Readme
+<!-- course-outline-start -->
+Replace Any Outline Between These Comments.
+<!-- course-outline-end -->
+
+# Other Sections Below
+"""
+```
+
+```elixir
+
+```
+
+## Navigation
+
+Based on an outline that looks like the following:
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+"""
+### Course Tools
+
+* Reading
+  * [Command Line](reading/command_line.livemd)
+  * [Git](reading/git.livemd)
+  * [Livebook](reading/livebook.livemd)
+  * [Code Editors](reading/code_editors.livemd)
+  * [IEx](reading/iex.livemd)
+* Exercises
+  * [Command Line Family Tree](exercises/command_line_family_tree.livemd)
+  * [GitHub Engineering Journal](exercises/github_engineering_journal.livemd)
+  * [GitHub Collab](exercises/github_collab.livemd)
+"""
+```
+
+Given a file name, Replace any `## Navigation` section with the correct navigation without affecting any headings `##` below.
+
+Here's an example for the `Git` section.
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+"""
+# Git
+This heading shouldn't be affected
+
+## Navigation
+
+Prev: [Command Line](reading/command_line.livemd)
+Next: [Livebook](reading/livebook.livemd)
+
+## Overview
+This overview shouldn't be affected.
+"""
+```
+
+```elixir
+defmodule Outliner do
+  @top_level_heading_reg ~r/^#\s(.+)/
+  @second_level_heading_reg ~r/^##\s/
+  @third_level_heading_reg ~r/^###\s/
+  @top_level_list_prefix "* "
+  @insert_regex ~r/(?<=<!-- course-outline-start -->\n)(.|\n)*(?=\n<!-- course-outline-end -->)/m
+
+  def heading_outline(string) do
+    String.split(string, "\n", trim: true)
+    |> Enum.map(&Regex.replace(@third_level_heading_reg, &1, @top_level_list_prefix))
+    |> Enum.join("\n")
+  end
+
+  def insert_outline(container, outline) do
+    Regex.replace(@insert_regex, container, outline)
+  end
+end
+
+outline = """
+# Readme
+<!-- course-outline-start -->
+Replace Any Outline Between These Comments.
+<!-- course-outline-end -->
+
+# Other Sections Below
+"""
+
+ordered = """
+### Course Tools
+
+* Reading
+  * [Command Line](reading/command_line.livemd)
+  * [Git](reading/git.livemd)
+  * [Livebook](reading/livebook.livemd)
+  * [Code Editors](reading/code_editors.livemd)
+  * [IEx](reading/iex.livemd)
+* Exercises
+  * [Command Line Family Tree](exercises/command_line_family_tree.livemd)
+  * [GitHub Engineering Journal](exercises/github_engineering_journal.livemd)
+  * [GitHub Collab](exercises/github_collab.livemd)
+"""
+
+defmodule Navigator do
+  def extract_nodes(text) do
+    Regex.scan(~r/  \* (.*)/, text)
+    |> Enum.map(fn [_, group] -> group end)
+  end
+
+  def extract_file_name_from_node(node) do
+    Regex.run(~r/(?<=\().*(?=\))/, node)
+    |> List.first()
+  end
+
+  def map_nodes(nodes) do
+    [first, second | _rest] = nodes
+    init_map = %{extract_file_name_from_node(first) => %{prev: nil, next: second}}
+
+    Enum.chunk_every(nodes, 3, 1)
+    |> Enum.reduce(init_map, fn
+      [prev, current, next], acc ->
+        Map.put(acc, extract_file_name_from_node(current), %{prev: prev, next: next})
+
+      [prev, current], acc ->
+        Map.put(acc, extract_file_name_from_node(current), %{prev: prev, next: nil})
+    end)
+  end
+end
+
+Navigator.extract_nodes(ordered)
+|> Navigator.map_nodes()
+```
+
+```elixir
+Navigator.extract_nodes(ordered)
+|> Enum.chunk_every(3, 1)
+```

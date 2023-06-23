@@ -87,7 +87,13 @@ end
 Implement the `CaesarCypher` module as documented.
 
 ```elixir
+{?a, ?z}
+```
+
+```elixir
 defmodule CaesarCypher do
+  @maximum_char_code 122
+  @minimum_char_code 97
   @moduledoc """
   Documentation for `CaesarCypher`
   """
@@ -107,6 +113,7 @@ defmodule CaesarCypher do
     "ifmmp"
   """
   def encode(string) do
+    encode(string, 1)
   end
 
   @doc """
@@ -130,6 +137,18 @@ defmodule CaesarCypher do
     "ifmmp"
   """
   def encode(string, key) do
+    string
+    |> String.to_charlist()
+    |> Enum.map(&shift_lower_case(&1, key))
+    |> List.to_string()
+  end
+
+  def shift_lower_case(character_code, offset) do
+    if (update = character_code + offset) > @maximum_char_code do
+      rem(update, @maximum_char_code) + @minimum_char_code - 1
+    else
+      update
+    end
   end
 end
 ```

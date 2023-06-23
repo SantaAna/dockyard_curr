@@ -133,7 +133,11 @@ defmodule Lucas do
     iex> Lucas.number(20)
     15127
   """
+  def number(0), do: 2
+  def number(1), do: 1
+
   def number(n) do
+    number(n - 1) + number(n - 2)
   end
 
   @doc """
@@ -156,10 +160,34 @@ defmodule Lucas do
     iex> Lucas.sequence(10)
     [2, 1, 3, 4, 7, 11, 18, 29, 47, 76]
   """
+  def sequence(1), do: [2]
+  def sequence(2), do: [2, 1]
 
   def sequence(length) do
+    sequence(length - 2, [1, 2])
+  end
+
+  def sequence(0, acc), do: Enum.reverse(acc)
+
+  def sequence(length, [p, pp | _rest] = acc) do
+    sequence(length - 1, [p + pp | acc])
+  end
+
+  def stream_sequence(1), do: [2]
+  def stream_sequence(2), do: [2, 1]
+
+  def stream_sequence(n) do
+    tail =
+      Stream.unfold({1, 2}, fn {current, last} ->
+        {current + last, {current + last, current}}
+      end)
+      |> Enum.take(n)
+
+    [2, 1 | tail]
   end
 end
+
+Lucas.stream_sequence(3)
 ```
 
 ## Commit Your Progress

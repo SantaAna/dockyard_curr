@@ -95,16 +95,6 @@ YouTube.new("https://www.youtube.com/watch?v=Mv9NEXX1VHc")
 We should have some end condition, otherwise, this would run forever. You'll notice that
 this Elixir cell never stops running. Under the hood it's calling `Forever.run/0` over and over.
 
-```elixir
-defmodule Forever do
-  def run do
-    run()
-  end
-end
-
-Forever.run()
-```
-
 ## Stack Overflow
 
 Coming from another language, you might be surprised that the endless recursion function doesn't crash
@@ -152,15 +142,7 @@ that doesn't do anything, however, it will infinitely call itself in the body of
 You'll notice the **Process** memory consumption will increase, and eventually, the cell will abort.
 You may need to click the **Connect** button to reconnect the Elixir runtime.
 
-```elixir
-# defmodule Body Do
-#   def recursion([head | tail]) Do
-#     recursion(tail ++ tail) ++ [head]
-#   end
-# end
-
-# Body.recursion([1,2,3])
-```
+<!-- livebook:{"break_markdown":true} -->
 
 Make sure you comment out the code above, otherwise Livebook will keep disconnecting.
 
@@ -260,7 +242,15 @@ end
 
 ```elixir
 defmodule CountDown do
+  def count(0), do: IO.puts(0)
+
+  def count(num) do
+    IO.puts(num)
+    count(num - 1)
+  end
 end
+
+CountDown.count(5)
 ```
 
 ### Your Turn
@@ -323,7 +313,20 @@ end
 
 ```elixir
 defmodule CountBetween do
+  def count(n, n), do: IO.puts(n)
+
+  def count(s, e) when s > e do
+    IO.puts(s)
+    count(s - 1, e)
+  end
+
+  def count(s, e) do
+    IO.puts(s)
+    count(s + 1, e)
+  end
 end
+
+CountBetween.count(5, 2)
 ```
 
 ## Commit Your Progress

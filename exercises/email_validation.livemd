@@ -5,7 +5,8 @@ Mix.install([
   {:jason, "~> 1.4"},
   {:kino, "~> 0.9", override: true},
   {:youtube, github: "brooklinjazz/youtube"},
-  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:email_checker, "~> 0.2.4"}
 ])
 ```
 
@@ -31,6 +32,10 @@ Mix.install([
 </div>
 
 ## Email Validation
+
+```elixir
+
+```
 
 Most applications and websites with users have a sign up form with an email input.
 
@@ -105,7 +110,13 @@ defmodule Email do
     false
   """
   def valid?(email) do
+    EmailChecker.Check.Format.valid?(email)
   end
+
+  # def valid?(email) do
+  #   pattern = ~r/.+@.+\..+/
+  #   Regex.match?(pattern, email)
+  # end
 end
 ```
 

@@ -71,6 +71,21 @@ defmodule TimeConverter do
   Documentation for `TimeConverter`
   """
 
+  @second_conversions %{
+    seconds: 1,
+    minutes: 60,
+    hours: 60 * 60,
+    days: 24 * 60 * 60
+  }
+  @valid_conversions [:seconds, :minutes, :hours, :days]
+
+  def map_to_seconds(amount, unit) when unit not in @valid_conversions,
+    do: {:error, "invalid unit"}
+
+  def map_to_seconds(amount, unit) do
+    amount * @second_conversions[unit]
+  end
+
   @doc """
   Convert a unit of time to a number of seconds.
 
@@ -90,6 +105,12 @@ defmodule TimeConverter do
 
   """
   def to_seconds(amount, unit) do
+    case unit do
+      :seconds -> amount
+      :minutes -> 60 * amount
+      :hours -> 60 * to_seconds(amount, :minutes)
+      :days -> 24 * to_seconds(amount, :hours)
+    end
   end
 
   @doc """
@@ -112,8 +133,18 @@ defmodule TimeConverter do
 
   """
   def from_seconds(amount, unit) do
+    case unit do
+      :seconds -> amount / 1
+      :minutes -> amount / 60
+      :hours -> from_seconds(amount, :minutes) / 60
+      :days -> from_seconds(amount, :hours) / 24
+    end
   end
 end
+```
+
+```elixir
+TimeConverter.map_to_seconds(2, :minutes)
 ```
 
 ## Commit Your Progress
